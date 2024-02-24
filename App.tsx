@@ -5,7 +5,7 @@
  * @format
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   SafeAreaView,
@@ -13,23 +13,24 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
+  TouchableOpacity,
   useColorScheme,
   View,
 } from 'react-native';
 
 import {
   Colors,
-  DebugInstructions,
   Header,
-  LearnMoreLinks,
-  ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
 
-function Section({children, title}: SectionProps): React.JSX.Element {
+type SectionProps = {
+  title: string;
+  children: React.ReactNode;
+};
+
+function Section({ children, title }: SectionProps): React.ReactElement {
   const isDarkMode = useColorScheme() === 'dark';
   return (
     <View style={styles.sectionContainer}>
@@ -55,44 +56,53 @@ function Section({children, title}: SectionProps): React.JSX.Element {
   );
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+// function App(): React.JSX.Element {
+//   const isDarkMode = useColorScheme() === 'dark';
 
-  // materialui 4 
-  // redux, react native contexts
-  // postgres json files
+//   // materialui 4 
+//   // redux, react native contexts
+//   // postgres json files
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+function LoginScreen(): React.ReactElement {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = () => {
+    // In a real app, you would perform authentication here
+    if (username === 'demo' && password === 'password') {
+      alert('Login successful!');
+    } else {
+      alert('Invalid credentials. Please try again.');
+    }
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
+    <SafeAreaView style={styles.container}>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
+        style={styles.scrollView}>
         <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            la.lalaala lizza is heel li
+        <View style={styles.content}>
+          <Section title="Login">
+            <TextInput
+              style={styles.input}
+              placeholder="Username"
+              value={username}
+              onChangeText={(text) => setUsername(text)}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              secureTextEntry
+              value={password}
+              onChangeText={(text) => setPassword(text)}
+            />
+            <TouchableOpacity
+              style={styles.loginButton}
+              onPress={handleLogin}>
+              <Text style={styles.loginButtonText}>Login</Text>
+            </TouchableOpacity>
           </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -100,6 +110,33 @@ function App(): React.JSX.Element {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    backgroundColor: Colors.lighter,
+  },
+  content: {
+    backgroundColor: Colors.white,
+    paddingHorizontal: 16,
+  },
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 12,
+    paddingHorizontal: 10,
+  },
+  loginButton: {
+    backgroundColor: 'blue',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  loginButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
   sectionContainer: {
     marginTop: 32,
     paddingHorizontal: 24,
@@ -113,9 +150,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '400',
   },
-  highlight: {
-    fontWeight: '700',
-  },
 });
 
-export default App;
+export default LoginScreen;
+
+function alert(arg0: string) {
+  throw new Error('Function not implemented.');
+}
