@@ -23,12 +23,24 @@ import {
   Colors,
   Header,
 } from 'react-native/Libraries/NewAppScreen';
+import { useNavigation, RouteProp, NavigationContainer } from '@react-navigation/native';
+import { StackNavigationProp, createStackNavigator } from '@react-navigation/stack';
 
 
 type SectionProps = {
   title: string;
   children: React.ReactNode;
 };
+
+// Define the type for your Stack navigator
+type RootStackParamList = {
+  Login: undefined; // Add any other screen names as needed
+  Register: undefined;
+};
+
+// Define the navigation prop type for LoginScreen
+type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
+
 
 function Section({ children, title }: SectionProps): React.ReactElement {
   const isDarkMode = useColorScheme() === 'dark';
@@ -66,14 +78,20 @@ function Section({ children, title }: SectionProps): React.ReactElement {
 function LoginScreen(): React.ReactElement {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const navigation = useNavigation<LoginScreenNavigationProp>(); // Explicitly define the type
 
   const handleLogin = () => {
-    // In a real app, you would perform authentication here
     if (username === 'demo' && password === 'password') {
       alert('Login successful!');
+      // Navigate to the main app screen or another screen after successful login
     } else {
       alert('Invalid credentials. Please try again.');
     }
+  };
+
+  const handleRegister = () => {
+    // Navigate to the registration screen
+    navigation.navigate('Register');
   };
 
   return (
@@ -101,6 +119,13 @@ function LoginScreen(): React.ReactElement {
               style={styles.loginButton}
               onPress={handleLogin}>
               <Text style={styles.loginButtonText}>Login</Text>
+            </TouchableOpacity>
+          </Section>
+          <Section title="Register">
+            <TouchableOpacity
+              style={styles.registerButton}
+              onPress={handleRegister}>
+              <Text style={styles.registerButtonText}>Register</Text>
             </TouchableOpacity>
           </Section>
         </View>
@@ -149,6 +174,17 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 18,
     fontWeight: '400',
+  },
+  registerButton: {
+    backgroundColor: 'green',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10, // Adjust the margin as needed
+  },
+  registerButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 
