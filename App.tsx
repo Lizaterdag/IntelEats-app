@@ -5,7 +5,7 @@
  * @format
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   SafeAreaView,
@@ -13,36 +13,23 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   useColorScheme,
   View,
 } from 'react-native';
 
 import {
   Colors,
+  DebugInstructions,
   Header,
+  LearnMoreLinks,
+  ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
-import { useNavigation, RouteProp, NavigationContainer } from '@react-navigation/native';
-import { StackNavigationProp, createStackNavigator } from '@react-navigation/stack';
 
-
-type SectionProps = {
+type SectionProps = PropsWithChildren<{
   title: string;
-  children: React.ReactNode;
-};
+}>;
 
-// Define the type for your Stack navigator
-type RootStackParamList = {
-  Login: undefined; // Add any other screen names as needed
-  Register: undefined;
-};
-
-// Define the navigation prop type for LoginScreen
-type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
-
-
-function Section({ children, title }: SectionProps): React.ReactElement {
+function Section({children, title}: SectionProps): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
   return (
     <View style={styles.sectionContainer}>
@@ -68,66 +55,44 @@ function Section({ children, title }: SectionProps): React.ReactElement {
   );
 }
 
-// function App(): React.JSX.Element {
-//   const isDarkMode = useColorScheme() === 'dark';
+function App(): React.JSX.Element {
+  const isDarkMode = useColorScheme() === 'dark';
 
-//   // materialui 4 
-//   // redux, react native contexts
-//   // postgres json files
+  // materialui 4 
+  // redux, react native contexts
+  // postgres json files
 
-function LoginScreen(): React.ReactElement {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const navigation = useNavigation<LoginScreenNavigationProp>(); // Explicitly define the type
-
-  const handleLogin = () => {
-    if (username === 'demo' && password === 'password') {
-      alert('Login successful!');
-      // Navigate to the main app screen or another screen after successful login
-    } else {
-      alert('Invalid credentials. Please try again.');
-    }
-  };
-
-  const handleRegister = () => {
-    // Navigate to the registration screen
-    navigation.navigate('Register');
+  const backgroundStyle = {
+    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={backgroundStyle}>
+      <StatusBar
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        backgroundColor={backgroundStyle.backgroundColor}
+      />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        style={styles.scrollView}>
+        style={backgroundStyle}>
         <Header />
-        <View style={styles.content}>
-          <Section title="Login">
-            <TextInput
-              style={styles.input}
-              placeholder="Username"
-              value={username}
-              onChangeText={(text) => setUsername(text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              secureTextEntry
-              value={password}
-              onChangeText={(text) => setPassword(text)}
-            />
-            <TouchableOpacity
-              style={styles.loginButton}
-              onPress={handleLogin}>
-              <Text style={styles.loginButtonText}>Login</Text>
-            </TouchableOpacity>
+        <View
+          style={{
+            backgroundColor: isDarkMode ? Colors.black : Colors.white,
+          }}>
+          <Section title="Step One">
+            la.lalaala lizza is heel li
           </Section>
-          <Section title="Register">
-            <TouchableOpacity
-              style={styles.registerButton}
-              onPress={handleRegister}>
-              <Text style={styles.registerButtonText}>Register</Text>
-            </TouchableOpacity>
+          <Section title="See Your Changes">
+            <ReloadInstructions />
           </Section>
+          <Section title="Debug">
+            <DebugInstructions />
+          </Section>
+          <Section title="Learn More">
+            Read the docs to discover what to do next:
+          </Section>
+          <LearnMoreLinks />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -135,33 +100,6 @@ function LoginScreen(): React.ReactElement {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollView: {
-    backgroundColor: Colors.lighter,
-  },
-  content: {
-    backgroundColor: Colors.white,
-    paddingHorizontal: 16,
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 10,
-  },
-  loginButton: {
-    backgroundColor: 'blue',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  loginButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
   sectionContainer: {
     marginTop: 32,
     paddingHorizontal: 24,
@@ -175,21 +113,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '400',
   },
-  registerButton: {
-    backgroundColor: 'green',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginTop: 10, // Adjust the margin as needed
-  },
-  registerButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+  highlight: {
+    fontWeight: '700',
   },
 });
 
-export default LoginScreen;
-
-function alert(arg0: string) {
-  throw new Error('Function not implemented.');
-}
+export default App;
