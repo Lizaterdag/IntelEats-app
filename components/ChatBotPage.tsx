@@ -25,7 +25,7 @@ const ChatBotPage = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer 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`, // Use your actual OpenAI API key
+          'Authorization': `Bearer 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`, // Use your actual OpenAI API key
           'OpenAI-Beta': 'assistants=v1',
         },
       });
@@ -63,7 +63,7 @@ const ChatBotPage = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer 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`, // Ensure secure handling
+          'Authorization': `Bearer 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`, // Ensure secure handling
           'OpenAI-Beta': 'assistants=v1',
         },
         body: JSON.stringify({
@@ -76,7 +76,7 @@ const ChatBotPage = () => {
       const runResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/runs`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer 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`, // Ensure secure handling
+          'Authorization': `Bearer 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`, // Ensure secure handling
           'Content-Type': 'application/json',
           'OpenAI-Beta': 'assistants=v1',
         },
@@ -102,7 +102,7 @@ const ChatBotPage = () => {
 
         const statusResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/runs/${runId}`, {
           headers: {
-            'Authorization': `Bearer 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`,
+            'Authorization': `Bearer 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`,
             'OpenAI-Beta': 'assistants=v1',
           },
         });
@@ -112,7 +112,7 @@ const ChatBotPage = () => {
           // Fetch the assistant's response if the run is completed or failed
           const messagesResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/messages`, {
             headers: {
-              'Authorization': `Bearer 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`,
+              'Authorization': `Bearer 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`,
               'OpenAI-Beta': 'assistants=v1',
             },
           });
