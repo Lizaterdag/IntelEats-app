@@ -1,42 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Button, Alert } from 'react-native';
-import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AddMealModal from './AddMealModal';
-
-// Example of a daily nutrition goals object
-const dailyGoals = {
-  calories: 2000,
-  protein: 150, // grams
-  carbs: 250, // grams
-  fat: 70, // grams
-};
-
-const MacroCircle = ({ nutrient='', goal=0, intake=0 }) => {
-  const left = goal - intake;
-  const progress = (intake / goal) * 100;
-
-  return (
-    <View style={styles.macroContainer}>
-      <AnimatedCircularProgress
-        size={100}
-        width={8}
-        fill={progress}
-        tintColor="#6200EE"
-        backgroundColor="#E0E0E0"
-        padding={10}>
-        {
-          (fill) => (
-            <Text style={styles.macroText}>
-              {left}g left
-            </Text>
-          )
-        }
-      </AnimatedCircularProgress>
-      <Text style={styles.macroLabel}>{nutrient}</Text>
-    </View>
-  );
-};
+import NutritionalIntakeSummary from './NutritionalIntakeSummary';
+import CustomButton from './CustomButton';
+import LinearGradient from 'react-native-linear-gradient';
 
 // Meal summary component
 const MealSummary = ({ meal, onEdit, onDelete }) => {
@@ -66,10 +34,6 @@ const NutritionTracker = () => {
     carbs: acc.carbs + (meal.carbs || 0),
     fat: acc.fat + (meal.fat || 0),
   }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
-
-  // Calculate the progress and remaining calories
-  const caloriesLeft = dailyGoals.calories - currentIntake.calories;
-  const calorieProgress = (currentIntake.calories / dailyGoals.calories) * 100;
 
   useEffect(() => {
     const loadMealsData = async () => {
@@ -153,74 +117,69 @@ const NutritionTracker = () => {
   const changeDate = (days) => {
     const newDate = new Date(selectedDate);
     newDate.setDate(newDate.getDate() + days);
+    const today = new Date();
+    
+    // Ensure the new date is not in the future
+    if (newDate > today) {
+      return;
+    }
+    
     setSelectedDate(newDate.toISOString().slice(0, 10));
   };
 
+  const [isNextDisabled, setIsNextDisabled] = useState(false);
+
+  useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    setIsNextDisabled(selectedDate >= today);
+  }, [selectedDate]);
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.dateNavigation}>
-        <Button title="<" onPress={() => changeDate(-1)} />
-        <Text style={styles.dateText}>{formatDateDisplay(selectedDate)}</Text>
-        <Button title=">" onPress={() => changeDate(1)} />
-      </View>
-      <View style={styles.progressContainer}>
-        <AnimatedCircularProgress
-          size={180}
-          width={15}
-          fill={calorieProgress}
-          tintColor="#6200EE"
-          backgroundColor="#E0E0E0"
-          padding={5}
-        >
-          {fill => (
-            <Text style={styles.progressText}>
-              {caloriesLeft} kcal left
-            </Text>
-          )}
-        </AnimatedCircularProgress>
-        <View style={styles.intakeContainer}>
-          <Text style={styles.intakeText}>Eaten</Text>
-          <Text style={styles.intakeNumber}>{currentIntake.calories} kcal</Text>
+    <LinearGradient
+      colors={['#ffcf87', '#485beb']}
+      style={{flex: 1}}
+    >
+      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <View style={styles.dateNavigation}>
+          <CustomButton title="<" onPress={() => changeDate(-1)} />
+          <Text style={styles.dateText}>{formatDateDisplay(selectedDate)}</Text>
+          <CustomButton title=">" onPress={() => changeDate(1) } disabled={isNextDisabled}/>
         </View>
-      </View>
-      <View style={styles.macrosProgressContainer}>
-        <MacroCircle nutrient="Carbs" goal={dailyGoals.carbs} intake={currentIntake.carbs} />
-        <MacroCircle nutrient="Protein" goal={dailyGoals.protein} intake={currentIntake.protein} />
-        <MacroCircle nutrient="Fat" goal={dailyGoals.fat} intake={currentIntake.fat} />
-      </View>
-      <View style={styles.mealsContainer}>
-        {filteredMeals.map((meal, index) => (
-          <MealSummary
-            key={index}
-            meal={meal}
-            onEdit={() => openEditModal(meal)}
-            onDelete={() => handleDeleteMeal(meal)}
-          />
-        ))}
-      </View>
-      <Button title="Add Meal" onPress={openAddModal} />
-      <AddMealModal
-        visible={isModalVisible}
-        onClose={() => {
-          setIsModalVisible(false);
-          setEditingMeal(null); // Reset editing meal upon closing
-        }}
-        onAddMeal={handleAddOrEditMeal}
-        initialMeal={editingMeal} // Make sure this prop is being passed
-      />
-    </ScrollView>
+        <NutritionalIntakeSummary currentIntake={currentIntake} />
+        <View style={styles.mealsContainer}>
+          {filteredMeals.map((meal, index) => (
+            <MealSummary
+              key={index}
+              meal={meal}
+              onEdit={() => openEditModal(meal)}
+              onDelete={() => handleDeleteMeal(meal)}
+            />
+          ))}
+        </View>
+        <CustomButton title="Add Meal" onPress={openAddModal} />
+        <AddMealModal
+          visible={isModalVisible}
+          onClose={() => {
+            setIsModalVisible(false);
+            setEditingMeal(null); // Reset editing meal upon closing
+          }}
+          onAddMeal={handleAddOrEditMeal}
+          initialMeal={editingMeal} // Make sure this prop is being passed
+        />
+      </ScrollView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 10,
-    backgroundColor: '#FFFFFF',
+    paddingTop: 30,
+    // backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
   },
   contentContainer: {
-    paddingBottom: 10, // Adjust this value based on the height of your bottom navbar
+    paddingBottom: 60, // Adjust this value based on the height of your bottom navbar
     // You can also add other styling here that you want to apply to the content of the ScrollView
     // alignItems: 'center',
   },
@@ -229,65 +188,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold', // Bold font weight
     color: '#333', // Text color,
     marginTop: 20, // Margin at the top for spacing
-  },
-  progressContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginVertical: 8,
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowColor: '#000',
-    shadowOffset: { height: 0, width: 0 },
-  },
-  progressText: {
-    fontSize: 21,
-    color: '#6200EE',
-  },
-  intakeContainer: {
-    marginLeft: 20,
-    alignItems: 'center',
-  },
-  intakeText: {
-    fontSize: 18,
-    color: '#6200EE',
-    marginBottom: 5,
-  },
-  intakeNumber: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#6200EE',
-  },
-  macroText: {
-    fontSize: 16,
-    color: '#6200EE',
-    marginBottom: 5,
-  },
-  macrosProgressContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginTop: 20,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginVertical: 8,
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowColor: '#000',
-    shadowOffset: { height: 0, width: 0 },
-  },
-  macroContainer: {
-    alignItems: 'center',
-    marginHorizontal: 10,
-  },
-  macroLabel: {
-    marginTop: 5,
-    fontSize: 16,
-    color: '#6200EE',
-    fontWeight: 'bold',
   },
   mealsContainer: {
     marginTop: 10,

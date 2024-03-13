@@ -1,5 +1,8 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TextInput } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import CustomButton from './CustomButton';
+import { theme } from './theme';
 
 // Example posts data
 const posts = [
@@ -65,11 +68,33 @@ const Post = ({ post }) => {
 // Blog page component
 const BlogPage = () => {
   return (
-    <ScrollView style={styles.container}>
-      {sortedPosts.map(post => (
-        <Post key={post.id} post={post} />
-      ))}
-    </ScrollView>
+    <LinearGradient
+      colors={['#ffcf87', '#485beb']}
+      style={{flex: 1}}
+    >
+      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+        <View style={styles.postContainer}>
+          <View style={styles.postAdd}>
+            <TextInput
+              style={styles.input}
+              placeholder="Type your message here..."
+            />  
+            <CustomButton
+              title="Add Image"
+              onPress={() => null}
+            />
+          </View>
+          <CustomButton
+            title="Post"
+            onPress={() => null}
+          />
+        </View>
+        {sortedPosts.map(post => (
+          <Post key={post.id} post={post} />
+        ))}
+      </ScrollView>
+    </LinearGradient>
+    
   );
 };
 
@@ -77,7 +102,14 @@ const BlogPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f7f7f7',
+    paddingTop: 30,
+    // backgroundColor: '#f7f7f7',
+  },
+  contentContainer: {
+    paddingTop: 20,
+    paddingBottom: 60, // Adjust this value based on the height of your bottom navbar
+    // You can also add other styling here that you want to apply to the content of the ScrollView
+    // alignItems: 'center',
   },
   postContainer: {
     backgroundColor: '#fff',
@@ -104,9 +136,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 8,
   },
+  postAdd: {
+    flexDirection: 'row',
+  },
   content: {
     fontSize: 14,
     color: '#333',
+  },
+  input: {
+    flex: 1,
+    borderColor: theme.colors.secondary, // Purple border for the input
+    borderWidth: 2,
+    marginRight: 10,
+    marginBottom: 0,
+    borderRadius: 5,
+    padding: 10,
+    backgroundColor: '#FFFFFF', // White background for the input for readability
+    color: theme.colors.secondaryText, // Black text for contrast
   },
 });
 

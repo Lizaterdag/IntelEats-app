@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import CustomButton from './CustomButton';
 
 const AddMealModal = ({ visible, onClose, onAddMeal, initialMeal }) => {
   const [meal, setMeal] = useState({
@@ -86,8 +87,8 @@ const AddMealModal = ({ visible, onClose, onAddMeal, initialMeal }) => {
           value={meal.fat.toString()}
           onChangeText={(text) => setMeal({ ...meal, fat: text })}
         />
-        <Button title="Add Meal" onPress={handleSubmit} />
-        <Button title="Cancel" onPress={onClose} />
+        <CustomButton title="Add Meal" onPress={handleSubmit} />
+        <CustomButton title="Cancel" onPress={onClose} />
       </View>
     </Modal>
   );

@@ -1,22 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ActivityIndicator, View, TextInput, Button, Text, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, TextInput, Button, Text, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { theme } from './theme'; // Import your theme object
+import { useChat } from './ChatContext';
+import LinearGradient from 'react-native-linear-gradient';
+import CustomButton from './CustomButton';
 
 const ChatBotPage = () => {
-    
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([{ content: "Hi, I'm your personal nutritionist. How can I help you?", isUser: false }]);
-  const [threadId, setThreadId] = useState(null);
-  const [isWaiting, setIsWaiting] = useState(false);
+  const {
+    messages,
+    setMessages,
+    threadId,
+    setThreadId,
+    isWaiting,
+    setIsWaiting
+  } = useChat();
   const scrollViewRef = useRef();
 
   useEffect(() => {
-    startThread();
-  }, []);
-
-  useEffect(() => {
+    if (!threadId) startThread(); // Only call startThread if threadId is null
     setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
-  }, [messages]);
+  }, [messages, threadId]); // Add threadId to dependency array
 
   const startThread = async () => {
     setIsWaiting(true);
@@ -25,7 +29,7 @@ const ChatBotPage = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer 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`, // Use your actual OpenAI API key
+          'Authorization': `Bearer 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`, // Use your actual OpenAI API key
           'OpenAI-Beta': 'assistants=v1',
         },
       });
@@ -63,7 +67,7 @@ const ChatBotPage = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer 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`, // Ensure secure handling
+          'Authorization': `Bearer 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`, // Ensure secure handling
           'OpenAI-Beta': 'assistants=v1',
         },
         body: JSON.stringify({
@@ -76,7 +80,7 @@ const ChatBotPage = () => {
       const runResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/runs`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer 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`, // Ensure secure handling
+          'Authorization': `Bearer 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`, // Ensure secure handling
           'Content-Type': 'application/json',
           'OpenAI-Beta': 'assistants=v1',
         },
@@ -102,7 +106,7 @@ const ChatBotPage = () => {
 
         const statusResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/runs/${runId}`, {
           headers: {
-            'Authorization': `Bearer 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`,
+            'Authorization': `Bearer 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`,
             'OpenAI-Beta': 'assistants=v1',
           },
         });
@@ -112,7 +116,7 @@ const ChatBotPage = () => {
           // Fetch the assistant's response if the run is completed or failed
           const messagesResponse = await fetch(`https://api.openai.com/v1/threads/${threadId}/messages`, {
             headers: {
-              'Authorization': `Bearer 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`,
+              'Authorization': `Bearer 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`,
               'OpenAI-Beta': 'assistants=v1',
             },
           });
@@ -149,38 +153,43 @@ const ChatBotPage = () => {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0} // Adjust the offset on iOS
-    >
-      <ScrollView ref={scrollViewRef} style={styles.messagesContainer} contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }} >
-        {messages.map((message, index) => (
+    // <LinearGradient
+    //   colors={['#ffcf87', '#485beb']}
+    //   style={{flex: 1}}
+    // >
+      <KeyboardAvoidingView 
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0} // Adjust the offset on iOS
+      >
+        <ScrollView ref={scrollViewRef} style={styles.messagesContainer} contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }} >
+          {messages.map((message, index) => (
             <View key={index} style={[styles.message, message.isUser ? styles.userMessage : styles.botMessage]}>
-                {message.isTemporary ? (
-                <Text style={styles.typingIndicator}>Assistant is typing...</Text>
-                ) : (
-                <Text style={styles.messageText}>{message.content}</Text>
-                )}
+              {message.isTemporary ? (
+              <Text style={styles.typingIndicator}>Assistant is typing...</Text>
+              ) : (
+              <Text style={styles.messageText}>{message.content}</Text>
+              )}
             </View>
-        ))}
-      </ScrollView>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          onChangeText={setInput}
-          value={input}
-          placeholder="Type your message here..."
-          editable={!isWaiting}
-        />
-        <Button
-          onPress={sendMessage}
-          title={isWaiting ? "Waiting..." : "Send"}
-          color="#007bff"
-          disabled={isWaiting || !input.trim()}
-        />
-      </View>
-    </KeyboardAvoidingView>
+          ))}
+        </ScrollView>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            onChangeText={setInput}
+            value={input}
+            placeholder="Type your message here..."
+            editable={!isWaiting}
+          />
+          <CustomButton
+            onPress={sendMessage}
+            title={isWaiting ? "Waiting..." : "Send"}
+            color="#007bff"
+            disabled={isWaiting || !input.trim()}
+          />
+        </View>
+      </KeyboardAvoidingView>
+    // </LinearGradient>
   );
 };
 
@@ -197,14 +206,23 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     padding: 10,
     borderRadius: 20,
+    borderWidth: 0,
+    // Shadow for iOS
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   userMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: '#d4ffc2' // Use the primary purple for user messages
+    backgroundColor: theme.colors.secondary // Use the primary purple for user messages
   },
   botMessage: {
     alignSelf: 'flex-start',
-    backgroundColor: '#c2d5ff', // A lighter shade for contrast with bot messages
+    backgroundColor: theme.colors.background, // A lighter shade for contrast with bot messages
     marginVertical: 5,
     marginRight: 'auto', // Ensure it sticks to the left
     padding: 10,
@@ -212,19 +230,26 @@ const styles = StyleSheet.create({
     maxWidth: '80%', // Ensure long messages don't stretch too far
   },
   messageText: {
-    color: theme.colors.secondaryText,
+    color: theme.colors.textOnPrimary,
+    fontWeight: 'bold',
+
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingTop: 8,
+    paddingBottom: 25,
+    borderTopWidth: 0, // Add a top border to separate the input field
+    borderTopColor: theme.colors.primary, // Use a light color for the border to keep it subtle
   },
   input: {
     flex: 1,
-    borderColor: theme.colors.primary, // Purple border for the input
-    borderWidth: 1,
+    borderColor: theme.colors.secondary, // Purple border for the input
+    borderWidth: 2,
     marginRight: 10,
-    borderRadius: 5,
-    padding: 10,
+    marginBottom: 0,
+    borderRadius: 10,
+    padding: 15,
     backgroundColor: '#FFFFFF', // White background for the input for readability
     color: theme.colors.secondaryText, // Black text for contrast
   },
